@@ -68,11 +68,10 @@ app.post('/api/login', (req, res) => {
   });
 });
 
-// 3. Trips & Items APIs
 app.post('/api/trips', (req, res) => {
-  const { trip_type, days, members } = req.body;
-  const query = 'INSERT INTO trips (trip_type, days, members) VALUES (?, ?, ?)';
-  db.query(query, [trip_type, days, members], (err, result) => {
+  const { destination, trip_type, days, members, start_date, budget_level, transport_mode } = req.body;
+  const query = 'INSERT INTO trips (destination, trip_type, days, members, start_date, budget_level, transport_mode) VALUES (?, ?, ?, ?, ?, ?, ?)';
+  db.query(query, [destination, trip_type, days, members, start_date, budget_level, transport_mode], (err, result) => {
     if (err) return res.status(500).json({ error: err.message });
     res.status(201).json({ message: 'Trip saved successfully!', tripId: result.insertId });
   });
@@ -88,7 +87,7 @@ app.get('/api/trips', (req, res) => {
 
 app.get('/api/items/:type', (req, res) => {
   const tripType = req.params.type; 
-  const query = 'SELECT * FROM packing_items WHERE item_type = ? OR item_type = "Both"';
+  const query = 'SELECT * FROM packing_items WHERE item_type = ? OR item_type = "Both" OR item_type = "General"';
   db.query(query, [tripType], (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json(results);
