@@ -146,18 +146,18 @@ function App() {
     }
   };
 
-  const validatePassword = (password) => {
-    const hasUpperCase = /[A-Z]/.test(password);
-    const hasLowerCase = /[a-z]/.test(password);
-    const isLengthValid = password.length >= 5;
-    return hasUpperCase && hasLowerCase && isLengthValid;
-  };
+  // Password Validation Rules (Maximum 5 Characters Limit)
+  const isLengthValid = passwordInput.length > 0 && passwordInput.length <= 5;
+  const hasUpper = /[A-Z]/.test(passwordInput);
+  const hasLower = /[a-z]/.test(passwordInput);
+  const hasNoNumbersOrSymbols = !/[^a-zA-Z]/.test(passwordInput);
+  const isPasswordValid = isLengthValid && hasUpper && hasLower && hasNoNumbersOrSymbols;
 
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validatePassword(passwordInput)) {
-      alert('⚠️ Password must be at least 5 characters long and contain both uppercase (A-Z) and lowercase (a-z) letters.');
+    if (authMode === 'register' && !isPasswordValid) {
+      alert('⚠️ Password violates the rules. Maximum length is 5 characters (Capital + Simple letters only).');
       return;
     }
 
@@ -170,6 +170,7 @@ function App() {
         });
         alert('✅ Registration successful! Please log in with your credentials.');
         setAuthMode('login');
+        setPasswordInput('');
       } else {
         await axios.post('http://localhost:5000/api/login', {
           email: emailInput,
@@ -228,21 +229,35 @@ function App() {
     window.open(mapsUrl, '_blank');
   };
 
-  const getFilteredAttractions = (destName, type) => {
-    const destKey = destName.toLowerCase().replace(/[^a-z]/g, '');
+  const getFilteredAttractions = (destName) => {
+    if (!destName || !destName.trim()) return null;
+    const destKey = destName.toLowerCase().replace(/[^a-z0-9]/g, '');
     let matchedPlaceKey = '';
+    
     for (const key in destinationAttractions) {
-      if (destKey.includes(key) || key.includes(destKey)) {
+      const cleanKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (destKey.includes(cleanKey) || cleanKey.includes(destKey)) {
         matchedPlaceKey = key;
         break;
       }
     }
 
-    if (matchedPlaceKey && destinationAttractions[matchedPlaceKey][type]) {
-      return destinationAttractions[matchedPlaceKey][type];
+    if (matchedPlaceKey && destinationAttractions[matchedPlaceKey]) {
+      let allPlaces = [];
+      const categories = destinationAttractions[matchedPlaceKey];
+      for (const cat in categories) {
+        allPlaces = allPlaces.concat(categories[cat]);
+      }
+      return allPlaces;
     }
 
-    return null;
+    const capitalizedDest = destName.charAt(0).toUpperCase() + destName.slice(1);
+    return [
+      { name: `${capitalizedDest} Ancient Heritage & Historical Site`, category: 'Historical Heritage' },
+      { name: `${capitalizedDest} Eco Nature Reserve & Park`, category: 'Nature & Wildlife' },
+      { name: `${capitalizedDest} Cultural Center & Local Village`, category: 'Culture & Community' },
+      { name: `${capitalizedDest} Scenic Viewpoint & Lake Trail`, category: 'Scenic Exploration' }
+    ];
   };
 
   const handleGenerateTrip = async (e) => {
@@ -320,7 +335,7 @@ function App() {
     }
   };
 
-  const currentAttractions = generatedTrip ? getFilteredAttractions(generatedTrip.destination, generatedTrip.tripType) : null;
+  const liveAttractions = getFilteredAttractions(destination);
 
   return (
     <div style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif", width: '100%', minHeight: '100vh', display: 'flex', flexDirection: 'column', margin: 0, padding: 0, boxSizing: 'border-box', backgroundColor: '#f4f8f5' }}>
@@ -333,11 +348,11 @@ function App() {
         right: 0, 
         zIndex: 99999, 
         background: '#1b5e20', 
-        padding: '16px 70px', // Inkrís padding fɔ mek in bɛtɛ
+        padding: '16px 70px', 
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center', 
-        height: '100px', // Inkrís di height fɔ mek in big
+        height: '100px', 
         boxSizing: 'border-box',
         boxShadow: '0 6px 24px rgba(0, 0, 0, 0.2)',
         borderBottom: '4px solid #81c784'
@@ -375,7 +390,6 @@ function App() {
           <Route path="/" element={
             <div style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
               
-              {/* Hero Section with images.jpg Background & Clear Overlay */}
               <div style={{ 
                 width: '100%', 
                 minHeight: '85vh', 
@@ -411,7 +425,6 @@ function App() {
                 </div>
               </div>
 
-              {/* Feature Cards Section */}
               <div style={{ width: '100%', backgroundColor: '#eef6f0', padding: '70px 40px', boxSizing: 'border-box' }}>
                 <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
                   
@@ -453,17 +466,16 @@ function App() {
           <Route path="/dashboard" element={
             <div style={{ width: '100%', maxWidth: '1150px', margin: '30px auto', padding: '0 20px', boxSizing: 'border-box', flex: 1, color: '#2d3748' }}>
               
-              {/* Planner Input Section */}
               <div id="planner-section" style={{ background: '#ffffff', padding: '35px', borderRadius: '24px', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', marginBottom: '30px', border: '1px solid #e8eee9' }}>
                 <h2 style={{ color: '#1b5e20', marginTop: 0, fontSize: '26px', fontWeight: '800', marginBottom: '22px', letterSpacing: '-0.5px' }}>✨ Plan a New Sustainable Trip</h2>
                 <form onSubmit={handleGenerateTrip}>
                   
                   <div style={{ marginBottom: '20px' }}>
                     <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#2d3748', fontSize: '15px' }}>Destination Location:</label>
-                    <div style={{ display: 'flex', gap: '12px' }}>
+                    <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
                       <input 
                         type="text" 
-                        placeholder="Enter destination (e.g. Kandy, Nuwara Eliya, Ella, Mirissa)" 
+                        placeholder="Enter destination (e.g. Kandy, Nuwara Eliya, Ella, Mirissa, Polonnaruwa)" 
                         value={destination} 
                         onChange={(e) => setDestination(e.target.value)} 
                         required 
@@ -477,18 +489,47 @@ function App() {
                         📍 Search Google Maps
                       </button>
                     </div>
+
+                    {liveAttractions && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '16px' }}>
+                        <div style={{ background: '#f7fafc', padding: '20px', borderRadius: '16px', border: '1px solid #c6f6d5', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                          <h4 style={{ color: '#1b5e20', margin: '0 0 14px 0', fontSize: '17px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            📍 All Recommended Visiting Places in <u>{destination}</u>:
+                          </h4>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '12px' }}>
+                            {liveAttractions.map((place, idx) => (
+                              <div key={idx} style={{ background: '#ffffff', padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
+                                <div style={{ fontWeight: '700', color: '#2e7d32', fontSize: '15px', marginBottom: '4px' }}>🌿 {place.name}</div>
+                                <small style={{ color: '#718096', fontSize: '12px', fontWeight: '600' }}>Category: {place.category}</small>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div style={{ background: '#ffffff', padding: '20px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                          <h4 style={{ color: '#1b5e20', margin: '0 0 14px 0', fontSize: '17px', fontWeight: '800' }}>🗺️ Location Map Preview: {destination}</h4>
+                          <iframe
+                            title="Destination Map Preview"
+                            width="100%"
+                            height="300"
+                            style={{ border: 0, borderRadius: '12px' }}
+                            loading="lazy"
+                            allowFullScreen
+                            src={`https://maps.google.com/maps?q=${encodeURIComponent(destination)}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
+                          ></iframe>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div style={{ marginBottom: '20px' }}>
                     <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#2d3748', fontSize: '15px' }}>Trip Type & Travel Style:</label>
                     <select value={tripType} onChange={(e) => { setTripType(e.target.value); loadDefaultItems(e.target.value); }} style={{ padding: '14px 18px', width: '100%', borderRadius: '12px', border: '1px solid #cbd5e0', fontSize: '15px', backgroundColor: '#fff' }}>
-                      
                       <optgroup label="🏖️ Relaxation & Rejuvenation">
                         <option value="Beach Holiday">Beach Holiday</option>
                         <option value="Wellness & Spa Retreat">Wellness & Spa Retreat</option>
                         <option value="Staycation">Staycation</option>
                       </optgroup>
-
                       <optgroup label="🏕️ Adventure & Outdoors">
                         <option value="Camping">Camping</option>
                         <option value="Hiking & Trekking">Hiking & Trekking</option>
@@ -496,20 +537,17 @@ function App() {
                         <option value="Wildlife Safari">Wildlife Safari</option>
                         <option value="Backpacking">Backpacking</option>
                       </optgroup>
-
                       <optgroup label="🏛️ Culture & Urban Exploration">
                         <option value="City Break">City Break</option>
                         <option value="Historical & Wonder Trip">Historical & Wonder Trip</option>
                         <option value="Culinary Tour">Culinary Tour</option>
                       </optgroup>
-
                       <optgroup label="✨ Special Styles & Group Dynamics">
                         <option value="Solo Trip">Solo Trip</option>
                         <option value="Romantic Getaway">Romantic Getaway</option>
                         <option value="Family / Group Vacation">Family / Group Vacation</option>
                         <option value="Island Hopping">Island Hopping</option>
                       </optgroup>
-
                     </select>
 
                     {tripTypeDescriptions[tripType] && (
@@ -561,54 +599,14 @@ function App() {
                 </form>
               </div>
 
-              {/* Generated Trip Results Section */}
-              {generatedTrip && (
+              {generatedTrip && plasticEstimate > 0 && (
                 <div id="results-section">
-                  
-                  <div style={{ background: currentAttractions ? '#ffffff' : '#fffaf0', padding: '30px', borderRadius: '16px', border: `1px solid ${currentAttractions ? '#c6f6d5' : '#feebc8'}`, marginBottom: '30px', boxShadow: '0 8px 20px rgba(0,0,0,0.04)' }}>
-                    {currentAttractions ? (
-                      <>
-                        <h3 style={{ color: '#1b5e20', margin: '0 0 18px 0', fontSize: '22px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          📍 Top Recommended <u>{generatedTrip.tripType}</u> Places in <u>{generatedTrip.destination}</u>:
-                        </h3>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '16px' }}>
-                          {currentAttractions.map((place, idx) => (
-                            <div key={idx} style={{ background: '#f7fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                              <div style={{ fontWeight: '700', color: '#2e7d32', fontSize: '16px', marginBottom: '4px' }}>🌿 {place.name}</div>
-                              <small style={{ color: '#718096', fontSize: '13px', fontWeight: '600' }}>Category: {place.category}</small>
-                            </div>
-                          ))}
-                        </div>
-                      </>
-                    ) : (
-                      <div style={{ color: '#744210', fontSize: '16px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        ⚠️ No specific preset recommendations available for <strong>{generatedTrip.tripType}</strong> in <strong>{generatedTrip.destination}</strong>. Feel free to explore and add your own custom spots!
-                      </div>
-                    )}
+                  <div style={{ background: 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)', padding: '30px', borderRadius: '16px', marginBottom: '30px', borderLeft: '8px solid #2e7d32', boxShadow: '0 8px 20px rgba(0,0,0,0.04)' }}>
+                    <h3 style={{ color: '#1b5e20', margin: '0 0 10px 0', fontSize: '22px', fontWeight: '800' }}>🌍 Environmental Impact & Waste Reduction</h3>
+                    <p style={{ margin: 0, color: '#1b5e20', fontSize: '17px', lineHeight: '1.6' }}>
+                      By choosing reusable gear and <strong>{generatedTrip.transportMode}</strong> for this <strong>{generatedTrip.tripType}</strong> to <strong>{generatedTrip.destination}</strong>, you will prevent approximately <strong style={{ fontSize: '20px', color: '#2e7d32' }}>{plasticEstimate} single-use plastic items</strong> from harming nature!
+                    </p>
                   </div>
-
-                  <div style={{ background: '#ffffff', padding: '30px', borderRadius: '16px', boxShadow: '0 8px 20px rgba(0,0,0,0.04)', marginBottom: '30px' }}>
-                    <h3 style={{ color: '#1b5e20', margin: '0 0 16px 0', fontSize: '20px', fontWeight: '800' }}>🗺️ Location Map Preview: {generatedTrip.destination}</h3>
-                    <iframe
-                      title="Destination Map"
-                      width="100%"
-                      height="300"
-                      style={{ border: 0, borderRadius: '12px' }}
-                      loading="lazy"
-                      allowFullScreen
-                      src={`https://maps.google.com/maps?q=${encodeURIComponent(generatedTrip.destination)}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
-                    ></iframe>
-                  </div>
-
-                  {plasticEstimate > 0 && (
-                    <div style={{ background: 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)', padding: '30px', borderRadius: '16px', marginBottom: '30px', borderLeft: '8px solid #2e7d32', boxShadow: '0 8px 20px rgba(0,0,0,0.04)' }}>
-                      <h3 style={{ color: '#1b5e20', margin: '0 0 10px 0', fontSize: '22px', fontWeight: '800' }}>🌍 Environmental Impact & Waste Reduction</h3>
-                      <p style={{ margin: 0, color: '#1b5e20', fontSize: '17px', lineHeight: '1.6' }}>
-                        By choosing reusable gear and <strong>{generatedTrip.transportMode}</strong> for this <strong>{generatedTrip.tripType}</strong> to <strong>{generatedTrip.destination}</strong>, you will prevent approximately <strong style={{ fontSize: '20px', color: '#2e7d32' }}>{plasticEstimate} single-use plastic items</strong> from harming nature!
-                      </p>
-                    </div>
-                  )}
-
                 </div>
               )}
 
@@ -718,10 +716,57 @@ function App() {
 
               <div style={{ marginBottom: '22px' }}>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: '800', marginBottom: '6px', color: '#4a5568', textTransform: 'uppercase' }}>Password</label>
-                <input type="password" placeholder="Min 5 chars (e.g. Abc12)" value={passwordInput} onChange={(e) => setPasswordInput(e.target.value)} required style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #cbd5e0', fontSize: '15px', boxSizing: 'border-box' }} />
+                <input 
+                  type="password" 
+                  placeholder="Max 5 letters (e.g. Abcde)" 
+                  value={passwordInput} 
+                  onChange={(e) => setPasswordInput(e.target.value)} 
+                  required 
+                  style={{ 
+                    width: '100%', 
+                    padding: '12px', 
+                    borderRadius: '10px', 
+                    border: `1px solid ${authMode === 'register' && passwordInput.length > 0 && !isPasswordValid ? '#e53935' : '#cbd5e0'}`, 
+                    fontSize: '15px', 
+                    boxSizing: 'border-box' 
+                  }} 
+                />
+                
+                {/* Real-time Checklist with MAXIMUM 5 Characters */}
+                {authMode === 'register' && (
+                  <div style={{ marginTop: '8px', background: '#f8fafc', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }}>
+                    <div style={{ color: isLengthValid ? '#2e7d32' : '#e53935', fontWeight: '700', marginBottom: '4px' }}>
+                      {isLengthValid ? '✅' : '❌'} Maximum 5 characters long (1 to 5)
+                    </div>
+                    <div style={{ color: hasUpper ? '#2e7d32' : '#e53935', fontWeight: '700', marginBottom: '4px' }}>
+                      {hasUpper ? '✅' : '❌'} At least one uppercase letter (A-Z)
+                    </div>
+                    <div style={{ color: hasLower ? '#2e7d32' : '#e53935', fontWeight: '700', marginBottom: '4px' }}>
+                      {hasLower ? '✅' : '❌'} At least one lowercase letter (a-z)
+                    </div>
+                    <div style={{ color: hasNoNumbersOrSymbols ? '#2e7d32' : '#e53935', fontWeight: '700' }}>
+                      {hasNoNumbersOrSymbols ? '✅' : '❌'} NO numbers or symbols allowed
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <button type="submit" style={{ width: '100%', background: '#2e7d32', color: 'white', border: 'none', padding: '14px', borderRadius: '10px', fontWeight: '800', fontSize: '16px', cursor: 'pointer', boxShadow: '0 5px 15px rgba(46,125,50,0.3)' }}>
+              <button 
+                type="submit" 
+                disabled={authMode === 'register' && !isPasswordValid}
+                style={{ 
+                  width: '100%', 
+                  background: (authMode === 'register' && !isPasswordValid) ? '#a0aec0' : '#2e7d32', 
+                  color: 'white', 
+                  border: 'none', 
+                  padding: '14px', 
+                  borderRadius: '10px', 
+                  fontWeight: '800', 
+                  fontSize: '16px', 
+                  cursor: (authMode === 'register' && !isPasswordValid) ? 'not-allowed' : 'pointer', 
+                  boxShadow: '0 5px 15px rgba(46,125,50,0.3)' 
+                }}
+              >
                 {authMode === 'login' ? 'Log In to Dashboard' : 'Register Account'}
               </button>
             </form>
