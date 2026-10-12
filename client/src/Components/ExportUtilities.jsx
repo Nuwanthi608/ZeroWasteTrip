@@ -89,7 +89,7 @@ function ExportUtilities({ items, destination, tripType }) {
           type="button"
           onClick={() => setShowQR(!showQR)}
           style={{
-            background: '#0288d1',
+            
             color: 'white',
             border: 'none',
             padding: '12px 22px',
@@ -99,24 +99,13 @@ function ExportUtilities({ items, destination, tripType }) {
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '20px',
             boxShadow: '0 4px 12px rgba(2,136,209,0.2)'
           }}
         >
-          📲 {showQR ? 'Hide QR Code' : 'Generate Shareable QR Code'}
+          
         </button>
       </div>
-
-      {showQR && (
-        <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '16px', border: '1px solid #e2e8f0', textAlign: 'center', maxWidth: '260px' }}>
-          <p style={{ margin: '0 0 12px 0', fontSize: '13px', fontWeight: '700', color: '#4a5568' }}>
-            Scan to sync list with trip partners:
-          </p>
-          <div style={{ background: '#ffffff', padding: '12px', borderRadius: '12px', display: 'inline-block' }}>
-            <QRCodeSVG value={shareableUrl} size={160} />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
