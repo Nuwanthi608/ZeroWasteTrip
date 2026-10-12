@@ -3,6 +3,10 @@ import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom'
 import axios from 'axios';
 import logoImg from './assets/logo.jpg';
 import homeBgImg from './assets/home.jpg';
+import EcoAnalytics from './components/EcoAnalytics';
+import EcoBadges from './components/EcoBadges';
+import ExportUtilities from './components/ExportUtilities';
+import AIItinerary from './components/AIItinerary';
 
 // Knowledge base for location recommendations based on trip type
 const destinationAttractions = {
@@ -340,7 +344,7 @@ function App() {
   return (
     <div style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif", width: '100%', minHeight: '100vh', display: 'flex', flexDirection: 'column', margin: 0, padding: 0, boxSizing: 'border-box', backgroundColor: '#f4f8f5' }}>
       
-      {/* High Visibility Green Navigation Bar */}
+      {/* Navigation Bar */}
       <nav style={{ 
         position: 'fixed', 
         top: 0, 
@@ -425,47 +429,13 @@ function App() {
                 </div>
               </div>
 
-              <div style={{ width: '100%', backgroundColor: '#eef6f0', padding: '70px 40px', boxSizing: 'border-box' }}>
-                <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-                  
-                  <div style={{ textAlign: 'center', marginBottom: '50px' }}>
-                    <h2 style={{ fontSize: '38px', fontWeight: '800', color: '#0f2410', margin: '0 0 12px 0' }}>How ZeroWaste Trip Planner Transforms Your Travel</h2>
-                    <p style={{ fontSize: '17px', color: '#526052', maxWidth: '620px', margin: '0 auto' }}>
-                      Designed to give you seamless, stress-free journeys while protecting Sri Lanka's beautiful natural landscapes.
-                    </p>
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '30px' }}>
-                    
-                    <div style={{ background: '#ffffff', padding: '35px', borderRadius: '24px', boxShadow: '0 10px 30px rgba(0,0,0,0.04)', border: '1px solid #deebdf', textAlign: 'left' }}>
-                      <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: '#e8f5e9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '26px', marginBottom: '20px' }}>📍</div>
-                      <h3 style={{ fontSize: '22px', fontWeight: '800', color: '#1b5e20', marginBottom: '12px' }}>Smart Destination Discovery</h3>
-                      <p style={{ color: '#617262', fontSize: '15px', lineHeight: '1.6', margin: 0 }}>Discover curated eco-attractions for Hiking, Camping, Beach & Cultural trips in Nuwara Eliya, Kandy, Ella, Mirissa & more.</p>
-                    </div>
-
-                    <div style={{ background: '#ffffff', padding: '35px', borderRadius: '24px', boxShadow: '0 10px 30px rgba(0,0,0,0.04)', border: '1px solid #deebdf', textAlign: 'left' }}>
-                      <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: '#e8f5e9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '26px', marginBottom: '20px' }}>🎒</div>
-                      <h3 style={{ fontSize: '22px', fontWeight: '800', color: '#1b5e20', marginBottom: '12px' }}>Zero-Waste Packing Engine</h3>
-                      <p style={{ color: '#617262', fontSize: '15px', lineHeight: '1.6', margin: 0 }}>Never forget reusable water bottles, bamboo cutlery, or eco-toiletries with personalized category-wise checklists.</p>
-                    </div>
-
-                    <div style={{ background: '#ffffff', padding: '35px', borderRadius: '24px', boxShadow: '0 10px 30px rgba(0,0,0,0.04)', border: '1px solid #deebdf', textAlign: 'left' }}>
-                      <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: '#e8f5e9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '26px', marginBottom: '20px' }}>📊</div>
-                      <h3 style={{ fontSize: '22px', fontWeight: '800', color: '#1b5e20', marginBottom: '12px' }}>Plastic Reduction Tracker</h3>
-                      <p style={{ color: '#617262', fontSize: '15px', lineHeight: '1.6', margin: 0 }}>Instantly calculate how many single-use plastic bottles & packaging items you prevent on every single trip you take!</p>
-                    </div>
-
-                  </div>
-
-                </div>
-              </div>
-
             </div>
           } />
 
           <Route path="/dashboard" element={
             <div style={{ width: '100%', maxWidth: '1150px', margin: '30px auto', padding: '0 20px', boxSizing: 'border-box', flex: 1, color: '#2d3748' }}>
               
+              {/* Trip Planner Form Section */}
               <div id="planner-section" style={{ background: '#ffffff', padding: '35px', borderRadius: '24px', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', marginBottom: '30px', border: '1px solid #e8eee9' }}>
                 <h2 style={{ color: '#1b5e20', marginTop: 0, fontSize: '26px', fontWeight: '800', marginBottom: '22px', letterSpacing: '-0.5px' }}>✨ Plan a New Sustainable Trip</h2>
                 <form onSubmit={handleGenerateTrip}>
@@ -475,7 +445,7 @@ function App() {
                     <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
                       <input 
                         type="text" 
-                        placeholder="Enter destination (e.g. Kandy, Nuwara Eliya, Ella, Mirissa, Polonnaruwa)" 
+                        placeholder="Enter destination (e.g. Kandy, Nuwara Eliya, Ella, Mirissa)" 
                         value={destination} 
                         onChange={(e) => setDestination(e.target.value)} 
                         required 
@@ -525,36 +495,14 @@ function App() {
                   <div style={{ marginBottom: '20px' }}>
                     <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#2d3748', fontSize: '15px' }}>Trip Type & Travel Style:</label>
                     <select value={tripType} onChange={(e) => { setTripType(e.target.value); loadDefaultItems(e.target.value); }} style={{ padding: '14px 18px', width: '100%', borderRadius: '12px', border: '1px solid #cbd5e0', fontSize: '15px', backgroundColor: '#fff' }}>
-                      <optgroup label="🏖️ Relaxation & Rejuvenation">
-                        <option value="Beach Holiday">Beach Holiday</option>
-                        <option value="Wellness & Spa Retreat">Wellness & Spa Retreat</option>
-                        <option value="Staycation">Staycation</option>
-                      </optgroup>
-                      <optgroup label="🏕️ Adventure & Outdoors">
-                        <option value="Camping">Camping</option>
-                        <option value="Hiking & Trekking">Hiking & Trekking</option>
-                        <option value="Road Trip">Road Trip</option>
-                        <option value="Wildlife Safari">Wildlife Safari</option>
-                        <option value="Backpacking">Backpacking</option>
-                      </optgroup>
-                      <optgroup label="🏛️ Culture & Urban Exploration">
-                        <option value="City Break">City Break</option>
-                        <option value="Historical & Wonder Trip">Historical & Wonder Trip</option>
-                        <option value="Culinary Tour">Culinary Tour</option>
-                      </optgroup>
-                      <optgroup label="✨ Special Styles & Group Dynamics">
-                        <option value="Solo Trip">Solo Trip</option>
-                        <option value="Romantic Getaway">Romantic Getaway</option>
-                        <option value="Family / Group Vacation">Family / Group Vacation</option>
-                        <option value="Island Hopping">Island Hopping</option>
-                      </optgroup>
+                      <option value="Beach Holiday">Beach Holiday</option>
+                      <option value="Wellness & Spa Retreat">Wellness & Spa Retreat</option>
+                      <option value="Camping">Camping</option>
+                      <option value="Hiking & Trekking">Hiking & Trekking</option>
+                      <option value="Road Trip">Road Trip</option>
+                      <option value="City Break">City Break</option>
+                      <option value="Historical & Wonder Trip">Historical & Wonder Trip</option>
                     </select>
-
-                    {tripTypeDescriptions[tripType] && (
-                      <div style={{ marginTop: '10px', background: '#f0fff4', color: '#276749', padding: '12px 18px', borderRadius: '10px', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid #c6f6d5' }}>
-                        💡 <strong>Traveler Focus:</strong> {tripTypeDescriptions[tripType]}
-                      </div>
-                    )}
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', marginBottom: '20px' }}>
@@ -583,17 +531,18 @@ function App() {
                     </div>
                   </div>
 
-                  <div style={{ marginBottom: '20px' }}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#2d3748', fontSize: '14px' }}>Number of Days:</label>
-                    <input type="number" min="1" value={days} onChange={(e) => setDays(e.target.value)} style={{ padding: '12px 16px', width: '100%', borderRadius: '10px', border: '1px solid #cbd5e0', fontSize: '15px' }} />
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '26px' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#2d3748', fontSize: '14px' }}>Number of Days:</label>
+                      <input type="number" min="1" value={days} onChange={(e) => setDays(e.target.value)} style={{ padding: '12px 16px', width: '100%', borderRadius: '10px', border: '1px solid #cbd5e0', fontSize: '15px', boxSizing: 'border-box' }} />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#2d3748', fontSize: '14px' }}>Number of Members:</label>
+                      <input type="number" min="1" value={members} onChange={(e) => setMembers(e.target.value)} style={{ padding: '12px 16px', width: '100%', borderRadius: '10px', border: '1px solid #cbd5e0', fontSize: '15px', boxSizing: 'border-box' }} />
+                    </div>
                   </div>
 
-                  <div style={{ marginBottom: '26px' }}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#2d3748', fontSize: '14px' }}>Number of Members:</label>
-                    <input type="number" min="1" value={members} onChange={(e) => setMembers(e.target.value)} style={{ padding: '12px 16px', width: '100%', borderRadius: '10px', border: '1px solid #cbd5e0', fontSize: '15px' }} />
-                  </div>
-
-                  <button type="submit" style={{ background: 'linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%)', color: 'white', padding: '16px', border: 'none', borderRadius: '12px', cursor: 'pointer', width: '100%', fontWeight: '800', fontSize: '17px', boxShadow: '0 4px 15px rgba(46,125,50,0.3)', letterSpacing: '0.3px' }}>
+                  <button type="submit" style={{ background: 'linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%)', color: 'white', padding: '16px', border: 'none', borderRadius: '12px', cursor: 'pointer', width: '100%', fontWeight: '800', fontSize: '17px', boxShadow: '0 4px 15px rgba(46,125,50,0.3)' }}>
                     🚀 Generate Zero-Waste Plan & Packing List
                   </button>
                 </form>
@@ -609,6 +558,15 @@ function App() {
                   </div>
                 </div>
               )}
+
+              {/* 📊 1. Eco Analytics Dashboard Component */}
+              <EcoAnalytics trips={tripsHistory} />
+
+              {/* 🎮 2. Gamification & Eco-Badges Component */}
+              <EcoBadges trips={tripsHistory} ecoPoints={50} />
+
+              {/* 🤖 3. AI-Powered Itinerary Generator Component */}
+              <AIItinerary destination={destination} tripType={tripType} days={days} />
 
               {/* Packing Section */}
               <div id="packing-section" style={{ background: '#ffffff', padding: '35px', borderRadius: '24px', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', marginBottom: '30px', border: '1px solid #e8eee9' }}>
@@ -642,6 +600,9 @@ function App() {
                     <button type="submit" style={{ background: '#0288d1', color: 'white', border: 'none', padding: '12px 26px', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '15px' }}>Add</button>
                   </div>
                 </form>
+
+                {/* 📲 4. Export & QR Code Share Utilities Component */}
+                <ExportUtilities items={items} destination={destination} tripType={tripType} />
               </div>
 
               {/* History Section */}
@@ -732,7 +693,6 @@ function App() {
                   }} 
                 />
                 
-                {/* Real-time Checklist with MAXIMUM 5 Characters */}
                 {authMode === 'register' && (
                   <div style={{ marginTop: '8px', background: '#f8fafc', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }}>
                     <div style={{ color: isLengthValid ? '#2e7d32' : '#e53935', fontWeight: '700', marginBottom: '4px' }}>
@@ -774,7 +734,7 @@ function App() {
         </div>
       )}
 
-      {/* Modern Compact Footer */}
+      {/* Footer */}
       <footer style={{ background: '#0a1d0b', color: '#8fa891', textAlign: 'center', padding: '30px 20px', marginTop: 'auto', width: '100%' }}>
         <p style={{ margin: '0 0 8px 0', fontWeight: '700', fontSize: '15px', color: '#ffffff' }}>🌱 ZeroWaste Trip Planner — Protect Nature, Travel Responsibly.</p>
         <p style={{ margin: 0, fontSize: '13px', color: '#668068' }}>© 2026 All Rights Reserved. Built with React, Node.js & MySQL.</p>
