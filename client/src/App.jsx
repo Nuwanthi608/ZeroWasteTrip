@@ -8,11 +8,15 @@ import EcoBadges from './components/EcoBadges';
 import ExportUtilities from './components/ExportUtilities';
 import AIItinerary from './components/AIItinerary';
 
+// Coastal/Beach-only keywords for validation
+const coastalTripTypes = ['Beach Vacation', 'Island Hopping', 'Cruise Travel'];
+const inlandLandlockedDestinations = ['kandy', 'nuwara eliya', 'nuwaraeliya', 'ella', 'sigiriya', 'dambulla', 'badulla', 'matale', 'kurunegala'];
+
 // Knowledge base for location recommendations based on trip type
 const destinationAttractions = {
   nuwaraeliya: {
     "Hiking & Trekking": [
-      { name: 'Horton Plains & World\'s End', category: 'Eco Trail & Hiking' },
+      { name: "Horton Plains & World's End", category: 'Eco Trail & Hiking' },
       { name: 'Single Tree Hill', category: 'Hiking Peak' },
       { name: 'Cone Forest Trail', category: 'Nature Walk' }
     ],
@@ -20,17 +24,17 @@ const destinationAttractions = {
       { name: 'Horton Plains Campsite Zones', category: 'Wild Camping' },
       { name: 'Pedro Estate Camping Base', category: 'Nature Camp' }
     ],
-    "Wellness & Spa Retreat": [
+    "Wellness & Relaxation": [
       { name: 'Gregory Lake Peaceful Walkways', category: 'Relaxation' },
       { name: 'Victoria Park Botanical Meditation', category: 'Wellness' }
     ],
-    "Historical & Wonder Trip": [
+    "Cultural & Heritage": [
       { name: 'Seetha Amman Temple', category: 'Historical Heritage' },
       { name: 'Hakgala Botanical Gardens', category: 'Historic Garden' }
     ]
   },
   kandy: {
-    "Culture & Urban Exploration": [
+    "Cultural & Heritage": [
       { name: 'Temple of the Sacred Tooth Relic', category: 'Heritage Site' },
       { name: 'Kandy National Museum', category: 'History & Culture' },
       { name: 'Kandy City Center & Cultural Show', category: 'Urban Heritage' }
@@ -39,26 +43,23 @@ const destinationAttractions = {
       { name: 'Udawatta Kele Sanctuary', category: 'Forest Trek' },
       { name: 'Bahirawakanda Temple Hill Hike', category: 'Scenic Hill Climb' }
     ],
-    "Wellness & Spa Retreat": [
+    "Wellness & Relaxation": [
       { name: 'Royal Botanical Gardens (Peradeniya)', category: 'Nature Healing' },
       { name: 'Kandy Lake Sunset Walk', category: 'Calm Environment' }
     ]
   },
   ella: {
     "Hiking & Trekking": [
-      { name: 'Little Adam\'s Peak', category: 'Mountain Hiking' },
+      { name: "Little Adam's Peak", category: 'Mountain Hiking' },
       { name: 'Ella Rock', category: 'Adventure Trail' }
     ],
-    "Historical & Wonder Trip": [
+    "Cultural & Heritage": [
       { name: 'Nine Arches Bridge', category: 'Colonial Architecture' },
       { name: 'Ravana Cave & Temple', category: 'Ancient Heritage' }
-    ],
-    "Beach Holiday": [
-      { name: 'Ravana Ella Waterfall Pool', category: 'Natural Swimming' }
     ]
   },
   mirissa: {
-    "Beach Holiday": [
+    "Beach Vacation": [
       { name: 'Mirissa Main Beach', category: 'Sun & Ocean Swim' },
       { name: 'Secret Beach Mirissa', category: 'Private Cove' }
     ],
@@ -66,29 +67,65 @@ const destinationAttractions = {
       { name: 'Mirissa Eco Whale Watching Tour', category: 'Marine Adventure' },
       { name: 'Parrot Rock Island', category: 'Coastal View' }
     ],
-    "Wellness & Spa Retreat": [
+    "Wellness & Relaxation": [
       { name: 'Coconut Tree Hill Yoga Spot', category: 'Meditation & Sunset' }
     ]
   }
 };
 
-const tripTypeDescriptions = {
-  "Beach Holiday": "Focuses on sun, sand, ocean swimming, and eco-friendly coastal relaxation.",
-  "Wellness & Spa Retreat": "Centers on yoga, meditation, nature detox programs, and mental rejuvenation.",
-  "Staycation": "Exploring nearby scenic stays, local eco-resorts, and stress-free getaways.",
-  "Camping": "Outdoor wilderness stay with tents, campfires, and leave-no-trace eco practices.",
-  "Hiking & Trekking": "Active trail journeys, climbing mountains, and nature wilderness exploring.",
-  "Road Trip": "Driving scenic routes at your own pace with eco-friendly carpooling habits.",
-  "Wildlife Safari": "Exploring protected natural reserves and national parks to spot wildlife responsibly.",
-  "Backpacking": "Budget-friendly, minimalist, long-term travel across multiple regions.",
-  "City Break": "Fast-paced urban exploration centered on museums, architecture, and local culture.",
-  "Historical & Wonder Trip": "Exploring UNESCO world heritage sites, ancient ruins, and cultural monuments.",
-  "Culinary Tour": "Tasting local organic street food, regional dishes, and culinary workshops.",
-  "Solo Trip": "Personal growth, self-reflection, and complete independent eco-traveling.",
-  "Romantic Getaway": "Quiet cabin stays, eco-luxury resorts, and peaceful sunset cruises for couples.",
-  "Family / Group Vacation": "Shared eco-friendly activities, group convenience, and sustainable bonding.",
-  "Island Hopping": "Coastal boat travel across multiple islands, coral reef visits, and marine care."
-};
+const tripTypesList = [
+  "Adventure",
+  "Beach Vacation",
+  "Nature & Wildlife",
+  "Cultural & Heritage",
+  "Family Trip",
+  "Solo Travel",
+  "Friends Trip",
+  "Road Trip",
+  "Camping",
+  "Hiking & Trekking",
+  "City Exploration",
+  "Religious & Spiritual",
+  "Food & Culinary",
+  "Photography Trip",
+  "Wellness & Relaxation",
+  "Romantic Getaway",
+  "Educational Trip",
+  "Business Travel",
+  "Eco Tourism",
+  "Budget-Friendly Travel",
+  "Luxury Travel",
+  "Backpacking",
+  "Group Travel",
+  "Slow Travel",
+  "Eco-Friendly Travel",
+  "Off-the-Beaten-Path",
+  "Wildlife Safari",
+  "Island Hopping",
+  "Cruise Travel"
+];
+
+const transportTypesList = [
+  "Car",
+  "Van",
+  "Bus",
+  "Train",
+  "Tuk-Tuk",
+  "Motorcycle",
+  "Bicycle",
+  "Scooter",
+  "Three-Wheeler",
+  "Taxi",
+  "Private Driver",
+  "Tourist Bus",
+  "Minibus",
+  "Public Transit",
+  "Jeep",
+  "Bicycle Rental",
+  "Boat",
+  "Walking",
+  "Ride-Sharing Service"
+];
 
 function App() {
   const navigate = useNavigate();
@@ -111,7 +148,7 @@ function App() {
   const [members, setMembers] = useState(1);
   const [startDate, setStartDate] = useState('');
   const [budgetLevel, setBudgetLevel] = useState('Moderate Standard 🌿');
-  const [transportMode, setTransportMode] = useState('Public Eco Transport / Train 🚂');
+  const [transportMode, setTransportMode] = useState('Train');
 
   const [generatedTrip, setGeneratedTrip] = useState(null);
 
@@ -150,7 +187,6 @@ function App() {
     }
   };
 
-  // Password Validation Rules (Maximum 5 Characters Limit)
   const isLengthValid = passwordInput.length > 0 && passwordInput.length <= 5;
   const hasUpper = /[A-Z]/.test(passwordInput);
   const hasLower = /[a-z]/.test(passwordInput);
@@ -233,6 +269,20 @@ function App() {
     window.open(mapsUrl, '_blank');
   };
 
+  const checkGeographicIncompatibility = () => {
+    if (!destination || !destination.trim()) return null;
+    const destLower = destination.toLowerCase();
+    
+    const isLandlocked = inlandLandlockedDestinations.some(place => destLower.includes(place));
+    const isCoastalTrip = coastalTripTypes.includes(tripType);
+
+    if (isLandlocked && isCoastalTrip) {
+      return `⚠️ Note: "${destination}" is an inland/mountainous region and does not have a coastline for "${tripType}". We recommend selecting Nature, Cultural, Hiking, or Wellness trips for this area!`;
+    }
+
+    return null;
+  };
+
   const getFilteredAttractions = (destName) => {
     if (!destName || !destName.trim()) return null;
     const destKey = destName.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -257,10 +307,10 @@ function App() {
 
     const capitalizedDest = destName.charAt(0).toUpperCase() + destName.slice(1);
     return [
-      { name: `${capitalizedDest} Ancient Heritage & Historical Site`, category: 'Historical Heritage' },
+      { name: `${capitalizedDest} Ancient Heritage & Historical Site`, category: 'Cultural & Heritage' },
       { name: `${capitalizedDest} Eco Nature Reserve & Park`, category: 'Nature & Wildlife' },
-      { name: `${capitalizedDest} Cultural Center & Local Village`, category: 'Culture & Community' },
-      { name: `${capitalizedDest} Scenic Viewpoint & Lake Trail`, category: 'Scenic Exploration' }
+      { name: `${capitalizedDest} Cultural Center & Local Village`, category: 'Religious & Spiritual' },
+      { name: `${capitalizedDest} Scenic Viewpoint & Lake Trail`, category: 'Hiking & Trekking' }
     ];
   };
 
@@ -340,6 +390,7 @@ function App() {
   };
 
   const liveAttractions = getFilteredAttractions(destination);
+  const geoWarning = checkGeographicIncompatibility();
 
   return (
     <div style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif", width: '100%', minHeight: '100vh', display: 'flex', flexDirection: 'column', margin: 0, padding: 0, boxSizing: 'border-box', backgroundColor: '#f4f8f5' }}>
@@ -366,17 +417,19 @@ function App() {
           <span>ZeroWaste <span style={{ color: '#a5d6a7', fontWeight: '700', fontSize: '20px' }}>Trip Planner</span></span>
         </Link>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '35px' }}>
-          <Link to="/" style={{ color: location.pathname === '/' ? '#a5d6a7' : '#ffffff', textDecoration: 'none', fontWeight: '800', fontSize: '18px', transition: 'all 0.2s' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
+          <Link to="/" style={{ color: location.pathname === '/' ? '#a5d6a7' : '#ffffff', textDecoration: 'none', fontWeight: '800', fontSize: '16px', transition: 'all 0.2s' }}>
             Home
           </Link>
 
           {isLoggedIn ? (
             <>
-              <span onClick={() => scrollToSection('planner-section')} style={{ color: '#ffffff', cursor: 'pointer', fontWeight: '800', fontSize: '18px' }}>Plan Trip</span>
-              <span onClick={() => scrollToSection('packing-section')} style={{ color: '#ffffff', cursor: 'pointer', fontWeight: '800', fontSize: '18px' }}>Packing List</span>
-              <span onClick={() => scrollToSection('history-section')} style={{ color: '#ffffff', cursor: 'pointer', fontWeight: '800', fontSize: '18px' }}>Trip History</span>
-              <button onClick={handleLogout} style={{ background: '#e53935', color: 'white', border: 'none', padding: '12px 28px', borderRadius: '30px', cursor: 'pointer', fontWeight: '800', fontSize: '16px', boxShadow: '0 4px 14px rgba(229,57,53,0.3)' }}>
+              <span onClick={() => scrollToSection('planner-section')} style={{ color: '#ffffff', cursor: 'pointer', fontWeight: '800', fontSize: '16px' }}>Plan Trip</span>
+              <span onClick={() => scrollToSection('analytics-section')} style={{ color: '#ffffff', cursor: 'pointer', fontWeight: '800', fontSize: '16px' }}>Analytics</span>
+              <span onClick={() => scrollToSection('itinerary-section')} style={{ color: '#ffffff', cursor: 'pointer', fontWeight: '800', fontSize: '16px' }}>AI Itinerary</span>
+              <span onClick={() => scrollToSection('packing-section')} style={{ color: '#ffffff', cursor: 'pointer', fontWeight: '800', fontSize: '16px' }}>Packing List</span>
+              <span onClick={() => scrollToSection('history-section')} style={{ color: '#ffffff', cursor: 'pointer', fontWeight: '800', fontSize: '16px' }}>History</span>
+              <button onClick={handleLogout} style={{ background: '#e53935', color: 'white', border: 'none', padding: '10px 22px', borderRadius: '30px', cursor: 'pointer', fontWeight: '800', fontSize: '15px', boxShadow: '0 4px 14px rgba(229,57,53,0.3)' }}>
                 Logout
               </button>
             </>
@@ -393,7 +446,6 @@ function App() {
         <Routes>
           <Route path="/" element={
             <div style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
-              
               <div style={{ 
                 width: '100%', 
                 minHeight: '85vh', 
@@ -408,27 +460,21 @@ function App() {
                 boxSizing: 'border-box'
               }}>
                 <div style={{ maxWidth: '620px', textAlign: 'left', color: '#ffffff', textShadow: '0 3px 12px rgba(0,0,0,0.85)', background: 'rgba(15, 36, 16, 0.65)', padding: '40px', borderRadius: '24px', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' }}>
-                  
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#2e7d32', padding: '8px 20px', borderRadius: '30px', fontSize: '13px', fontWeight: '800', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '22px', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
                     🌿 EMPOWERING ENVIRONMENTAL CONSERVATION
                   </div>
-                  
                   <h1 style={{ fontSize: '52px', fontWeight: '900', lineHeight: '1.15', margin: '0 0 20px 0', letterSpacing: '-1.5px', color: '#ffffff' }}>
                     Travel Green, <br />
                     <span style={{ color: '#a5d6a7', fontStyle: 'italic' }}>Leave No Plastic Behind.</span>
                   </h1>
-
                   <p style={{ fontSize: '18px', lineHeight: '1.6', color: '#f1f8e9', marginBottom: '32px', fontWeight: '500' }}>
                     Plan eco-friendly journeys, reduce single-use plastic waste, and create custom sustainable packing checklists effortlessly!
                   </p>
-
                   <button onClick={() => { if(isLoggedIn) navigate('/dashboard'); else setShowAuthModal(true); }} style={{ background: 'linear-gradient(135deg, #43a047 0%, #1b5e20 100%)', color: 'white', border: '1px solid rgba(255,255,255,0.4)', padding: '16px 42px', borderRadius: '35px', fontSize: '17px', fontWeight: '800', cursor: 'pointer', boxShadow: '0 8px 25px rgba(0,0,0,0.4)' }}>
                     {isLoggedIn ? 'Explore Dashboard 🚀' : 'Start Planning Free 🌱'}
                   </button>
-
                 </div>
               </div>
-
             </div>
           } />
 
@@ -438,8 +484,10 @@ function App() {
               {/* Trip Planner Form Section */}
               <div id="planner-section" style={{ background: '#ffffff', padding: '35px', borderRadius: '24px', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', marginBottom: '30px', border: '1px solid #e8eee9' }}>
                 <h2 style={{ color: '#1b5e20', marginTop: 0, fontSize: '26px', fontWeight: '800', marginBottom: '22px', letterSpacing: '-0.5px' }}>✨ Plan a New Sustainable Trip</h2>
+                
                 <form onSubmit={handleGenerateTrip}>
                   
+                  {/* 1. Destination Input */}
                   <div style={{ marginBottom: '20px' }}>
                     <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#2d3748', fontSize: '15px' }}>Destination Location:</label>
                     <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
@@ -459,52 +507,62 @@ function App() {
                         📍 Search Google Maps
                       </button>
                     </div>
-
-                    {liveAttractions && (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '16px' }}>
-                        <div style={{ background: '#f7fafc', padding: '20px', borderRadius: '16px', border: '1px solid #c6f6d5', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
-                          <h4 style={{ color: '#1b5e20', margin: '0 0 14px 0', fontSize: '17px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            📍 All Recommended Visiting Places in <u>{destination}</u>:
-                          </h4>
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '12px' }}>
-                            {liveAttractions.map((place, idx) => (
-                              <div key={idx} style={{ background: '#ffffff', padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
-                                <div style={{ fontWeight: '700', color: '#2e7d32', fontSize: '15px', marginBottom: '4px' }}>🌿 {place.name}</div>
-                                <small style={{ color: '#718096', fontSize: '12px', fontWeight: '600' }}>Category: {place.category}</small>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div style={{ background: '#ffffff', padding: '20px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
-                          <h4 style={{ color: '#1b5e20', margin: '0 0 14px 0', fontSize: '17px', fontWeight: '800' }}>🗺️ Location Map Preview: {destination}</h4>
-                          <iframe
-                            title="Destination Map Preview"
-                            width="100%"
-                            height="300"
-                            style={{ border: 0, borderRadius: '12px' }}
-                            loading="lazy"
-                            allowFullScreen
-                            src={`https://maps.google.com/maps?q=${encodeURIComponent(destination)}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
-                          ></iframe>
-                        </div>
-                      </div>
-                    )}
                   </div>
 
+                  {/* 2. Trip Type & Travel Style Dropdown (Placed directly below Destination Location) */}
                   <div style={{ marginBottom: '20px' }}>
                     <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#2d3748', fontSize: '15px' }}>Trip Type & Travel Style:</label>
-                    <select value={tripType} onChange={(e) => { setTripType(e.target.value); loadDefaultItems(e.target.value); }} style={{ padding: '14px 18px', width: '100%', borderRadius: '12px', border: '1px solid #cbd5e0', fontSize: '15px', backgroundColor: '#fff' }}>
-                      <option value="Beach Holiday">Beach Holiday</option>
-                      <option value="Wellness & Spa Retreat">Wellness & Spa Retreat</option>
-                      <option value="Camping">Camping</option>
-                      <option value="Hiking & Trekking">Hiking & Trekking</option>
-                      <option value="Road Trip">Road Trip</option>
-                      <option value="City Break">City Break</option>
-                      <option value="Historical & Wonder Trip">Historical & Wonder Trip</option>
+                    <select 
+                      value={tripType} 
+                      onChange={(e) => { setTripType(e.target.value); loadDefaultItems(e.target.value); }} 
+                      style={{ padding: '14px 18px', width: '100%', borderRadius: '12px', border: '1px solid #cbd5e0', fontSize: '15px', backgroundColor: '#fff' }}
+                    >
+                      {tripTypesList.map((type, idx) => (
+                        <option key={idx} value={type}>{type}</option>
+                      ))}
                     </select>
                   </div>
 
+                  {/* 3. Geographic Incompatibility Warning Alert */}
+                  {geoWarning && (
+                    <div style={{ background: '#fff5f5', color: '#c53030', padding: '12px 16px', borderRadius: '10px', border: '1px solid #feb2b2', marginBottom: '20px', fontSize: '14px', fontWeight: '600' }}>
+                      {geoWarning}
+                    </div>
+                  )}
+
+                  {/* 4. Recommended Places & Map Preview */}
+                  {liveAttractions && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '20px' }}>
+                      <div style={{ background: '#f7fafc', padding: '20px', borderRadius: '16px', border: '1px solid #c6f6d5', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                        <h4 style={{ color: '#1b5e20', margin: '0 0 14px 0', fontSize: '17px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          📍 Recommended Visiting Places in <u>{destination}</u>:
+                        </h4>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '12px' }}>
+                          {liveAttractions.map((place, idx) => (
+                            <div key={idx} style={{ background: '#ffffff', padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
+                              <div style={{ fontWeight: '700', color: '#2e7d32', fontSize: '15px', marginBottom: '4px' }}>🌿 {place.name}</div>
+                              <small style={{ color: '#718096', fontSize: '12px', fontWeight: '600' }}>Category: {place.category}</small>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div style={{ background: '#ffffff', padding: '20px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                        <h4 style={{ color: '#1b5e20', margin: '0 0 14px 0', fontSize: '17px', fontWeight: '800' }}>🗺️ Location Map Preview: {destination}</h4>
+                        <iframe
+                          title="Destination Map Preview"
+                          width="100%"
+                          height="300"
+                          style={{ border: 0, borderRadius: '12px' }}
+                          loading="lazy"
+                          allowFullScreen
+                          src={`https://maps.google.com/maps?q=${encodeURIComponent(destination)}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
+                        ></iframe>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 5. Dates, Budget & Transport */}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', marginBottom: '20px' }}>
                     <div>
                       <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#2d3748', fontSize: '14px' }}>Trip Start Date:</label>
@@ -522,15 +580,19 @@ function App() {
 
                     <div>
                       <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#2d3748', fontSize: '14px' }}>Transport Mode:</label>
-                      <select value={transportMode} onChange={(e) => setTransportMode(e.target.value)} style={{ padding: '12px 16px', width: '100%', borderRadius: '10px', border: '1px solid #cbd5e0', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}>
-                        <option value="Public Eco Transport / Train 🚂">Public Eco Transport / Train 🚂</option>
-                        <option value="Electric Vehicle / Carpool ⚡">Electric Vehicle / Carpool ⚡</option>
-                        <option value="Private Car / Van 🚗">Private Car / Van 🚗</option>
-                        <option value="Hiking / Walking 🥾">Hiking / Walking 🥾</option>
+                      <select 
+                        value={transportMode} 
+                        onChange={(e) => setTransportMode(e.target.value)} 
+                        style={{ padding: '12px 16px', width: '100%', borderRadius: '10px', border: '1px solid #cbd5e0', fontSize: '14px', boxSizing: 'border-box', backgroundColor: '#fff' }}
+                      >
+                        {transportTypesList.map((mode, idx) => (
+                          <option key={idx} value={mode}>{mode}</option>
+                        ))}
                       </select>
                     </div>
                   </div>
 
+                  {/* 6. Members & Days */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '26px' }}>
                     <div>
                       <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#2d3748', fontSize: '14px' }}>Number of Days:</label>
@@ -559,14 +621,17 @@ function App() {
                 </div>
               )}
 
-              {/* 📊 1. Eco Analytics Dashboard Component */}
-              <EcoAnalytics trips={tripsHistory} />
+              {/* 📊 Eco Analytics Dashboard Component */}
+              <div id="analytics-section">
+                <EcoAnalytics trips={tripsHistory} />
+              </div>
 
-              {/* 🎮 2. Gamification & Eco-Badges Component */}
-              <EcoBadges trips={tripsHistory} ecoPoints={50} />
+              
 
-              {/* 🤖 3. AI-Powered Itinerary Generator Component */}
-              <AIItinerary destination={destination} tripType={tripType} days={days} />
+              {/* 🤖 AI-Powered Itinerary Generator Component */}
+              <div id="itinerary-section">
+                <AIItinerary destination={destination} tripType={tripType} days={days} />
+              </div>
 
               {/* Packing Section */}
               <div id="packing-section" style={{ background: '#ffffff', padding: '35px', borderRadius: '24px', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', marginBottom: '30px', border: '1px solid #e8eee9' }}>
@@ -601,7 +666,7 @@ function App() {
                   </div>
                 </form>
 
-                {/* 📲 4. Export & QR Code Share Utilities Component */}
+                {/* 📲 Export & QR Code Share Utilities Component */}
                 <ExportUtilities items={items} destination={destination} tripType={tripType} />
               </div>
 
